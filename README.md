@@ -69,5 +69,7 @@ To reference the availability zone in your text editor, do the following;
 variable avail_zone {}
 ```
 
-## Provisioners
+Next topic is on provisioners which is in my [next branch](https://github.com/appwebtech/terraform-mini-project/tree/feature/provisioners).
+
+## [Provisioners](https://github.com/appwebtech/terraform-mini-project/tree/feature/provisioners)
 
