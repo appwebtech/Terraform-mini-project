@@ -2,16 +2,7 @@ provider "aws" {
   region = "eu-west-1"
 }
 
-variable "vpc_cidr_block" {}
-variable "subnet_cidr_block" {}
-variable "avail_zone" {}
-variable "env_prefix" {}
-variable "my_ip" {}
-variable "instance_type" {}
-variable "private-key-location" {}
-/* variable "public_key_location" {} */
-
-# VPC and Subnet
+# VPC 
 resource "aws_vpc" "myapp-vpc" {
   cidr_block = var.vpc_cidr_block
   tags = {
@@ -19,42 +10,12 @@ resource "aws_vpc" "myapp-vpc" {
   }
 }
 
-resource "aws_subnet" "myapp-subnet-1" {
+module "myapp-subnet" {
+  source            = "./modules/subnet"
+  subnet_cidr_block = var.subnet_cidr_block
+  avail_zone        = var.avail_zone
+  env_prefix        = var.env_prefix
   vpc_id            = aws_vpc.myapp-vpc.id
-  cidr_block        = var.subnet_cidr_block
-  availability_zone = var.avail_zone
-  tags = {
-    Name : "${var.env_prefix}-subnet-1"
-  }
-}
-
-# RTB
-
-resource "aws_route_table" "myapp-route-table" {
-  vpc_id = aws_vpc.myapp-vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.myapp-igw.id
-  }
-  tags = {
-    Name : "${var.env_prefix}-rtb"
-  }
-}
-
-# IGW
-resource "aws_internet_gateway" "myapp-igw" {
-  vpc_id = aws_vpc.myapp-vpc.id
-
-  tags = {
-    Name : "${var.env_prefix}-igw"
-  }
-}
-
-# Subnet RTB Association
-resource "aws_route_table_association" "a-rtb-subnet" {
-  subnet_id      = aws_subnet.myapp-subnet-1.id
-  route_table_id = aws_route_table.myapp-route-table.id
 }
 
 # Security Group
@@ -116,7 +77,7 @@ resource "aws_instance" "myapp-server" {
   ami           = data.aws_ami.latest-amazon-linux-image.id
   instance_type = var.instance_type
 
-  subnet_id              = aws_subnet.myapp-subnet-1.id
+  subnet_id              = module.myapp-subnet.subnet.id
   vpc_security_group_ids = [aws_security_group.myapp-sg.id]
   availability_zone      = var.avail_zone
 
@@ -124,36 +85,7 @@ resource "aws_instance" "myapp-server" {
   key_name                    = "fedora"
 
   user_data = file("user-data.sh")
-
-  connection {
-    type        = "ssh"
-    host        = self.public_ip
-    user        = "ec2-user"
-    private_key = file(var.private-key-location)
-  }
-  provisioner "file" {
-     source = "entry-script.sh"
-     destination = "/home/ec2-user"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      script = file("entry-script.sh")
-    ]
-  }
-
-  provisioner "local-exec" {
-    command = "echo ${self.public_ip} > output.txt"
-  }
   tags = {
     Name : "${var.env_prefix}-server"
   }
-}
-
-output "aws_ami_id" {
-  value = data.aws_ami.latest-amazon-linux-image.id
-}
-
-output "ec2-public-ip" {
-  value = aws_instance.myapp-server.public_ip
 }

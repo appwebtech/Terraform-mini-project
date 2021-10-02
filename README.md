@@ -114,3 +114,7 @@ Provisioners are a last resort and not recommended by Terraform because they bre
 See Terraform modules in the next [branch]
 
 ## Modules
+
+A module is a container for multiple resources, used together. We use them to organize and group configurations into distinct logical components enabling re-use capabilities.
+
+
