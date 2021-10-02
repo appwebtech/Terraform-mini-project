@@ -8,6 +8,7 @@ variable "avail_zone" {}
 variable "env_prefix" {}
 variable "my_ip" {}
 variable "instance_type" {}
+variable "private-key-location" {}
 /* variable "public_key_location" {} */
 
 # VPC and Subnet
@@ -123,11 +124,31 @@ resource "aws_instance" "myapp-server" {
   key_name                    = "fedora"
 
   user_data = file("user-data.sh")
+
+  connection {
+    type        = "ssh"
+    host        = self.public_ip
+    user        = "ec2-user"
+    private_key = file(var.private-key-location)
+  }
+  provisioner "file" {
+     source = "entry-script.sh"
+     destination = "/home/ec2-user"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      script = file("entry-script.sh")
+    ]
+  }
+
+  provisioner "local-exec" {
+    command = "echo ${self.public_ip} > output.txt"
+  }
   tags = {
     Name : "${var.env_prefix}-server"
   }
 }
-
 
 output "aws_ami_id" {
   value = data.aws_ami.latest-amazon-linux-image.id

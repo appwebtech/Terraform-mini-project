@@ -71,3 +71,45 @@ variable avail_zone {}
 
 ## Provisioners
 
+A **remote-exec** provisioner allows us to connect to a remote server and execute commands in that server.
+
+A **file** provisioner is used to copy files or directories from local to newly created resources.
+
+Adding the following code inside the EC2 instance block will create a provisioner which will export the environment variable **DEV** and create a new directory **newdir**. A script can also be used, which is common. The remote must already exist in the remote server.
+
+
+```terraform
+  connection {
+    type        = "ssh"
+    host        = self.public_ip
+    user        = "ec2-user"
+    private_key = file(var.private-key-location)
+  }
+
+  provisioner "file" {
+     source = "entry-script.sh"
+     destination = "/home/ec2-user"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "export ENV=dev",
+      "mkdir newdir"
+    ]
+  }
+```
+
+The last provisioner is called **local-exec** which invokes a local executable (LOCALLY) after a resource has been created.
+
+```terraform
+................................  
+provisioner "local-exec" {
+    command = "echo ${self.public_ip} > output.txt"
+  }
+....
+```
+
+Provisioners are a last resort and not recommended by Terraform because they break **idempotency** concept.
+
+**Idempotency** means that no matter how many times a task is executed, it should always give you the same results. Instead of using scripts inside Terraform, it's recommended you use configuration management tools like **Chef, Puppet, Ansible, etc** once the server is provisioned.
+
