@@ -101,15 +101,16 @@ Adding the following code inside the EC2 instance block will create a provisione
 
 The last provisioner is called **local-exec** which invokes a local executable (LOCALLY) after a resource has been created.
 
-```terraform
-................................  
+```terraform 
 provisioner "local-exec" {
     command = "echo ${self.public_ip} > output.txt"
   }
-....
 ```
 
 Provisioners are a last resort and not recommended by Terraform because they break **idempotency** concept.
 
 **Idempotency** means that no matter how many times a task is executed, it should always give you the same results. Instead of using scripts inside Terraform, it's recommended you use configuration management tools like **Chef, Puppet, Ansible, etc** once the server is provisioned.
 
+See Terraform modules in the next [branch]
+
+## Modules
