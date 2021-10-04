@@ -69,7 +69,7 @@ To reference the availability zone in your text editor, do the following;
 variable avail_zone {}
 ```
 
-## Provisioners
+## [Provisioners](https://github.com/appwebtech/terraform-mini-project/tree/feature/provisioners)
 
 A **remote-exec** provisioner allows us to connect to a remote server and execute commands in that server.
 
@@ -113,4 +113,8 @@ Provisioners are a last resort and not recommended by Terraform because they bre
 
 See Terraform modules in the next [branch]
 
-## Modules
+## [Modules](https://github.com/appwebtech/terraform-mini-project/edit/feature/modules/README.md)
+
+A module is a container for multiple resources, used together. We use them to organize and group configurations into distinct logical components enabling re-use capabilities. I will create modules for the subnet and webserver and parameterize recurring objects.
+
+
