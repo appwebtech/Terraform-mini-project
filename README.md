@@ -113,7 +113,7 @@ Provisioners are a last resort and not recommended by Terraform because they bre
 
 See Terraform modules in the next [branch]
 
-## [Modules](https://github.com/appwebtech/terraform-mini-project/edit/feature/modules/README.md)
+## [Modules](https://github.com/appwebtech/terraform-mini-project/tree/feature/modules)
 
 A module is a container for multiple resources, used together. We use them to organize and group configurations into distinct logical components enabling re-use capabilities. I will create modules for the subnet and webserver and parameterize recurring objects.
 
