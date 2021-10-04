@@ -115,6 +115,6 @@ See Terraform modules in the next [branch]
 
 ## Modules
 
-A module is a container for multiple resources, used together. We use them to organize and group configurations into distinct logical components enabling re-use capabilities.
+A module is a container for multiple resources, used together. We use them to organize and group configurations into distinct logical components enabling re-use capabilities. I will create modules for the subnet and webserver and parameterize recurring objects.
 
 

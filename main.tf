@@ -10,6 +10,7 @@ resource "aws_vpc" "myapp-vpc" {
   }
 }
 
+# Module Subnet
 module "myapp-subnet" {
   source            = "./modules/subnet"
   subnet_cidr_block = var.subnet_cidr_block
@@ -18,74 +19,15 @@ module "myapp-subnet" {
   vpc_id            = aws_vpc.myapp-vpc.id
 }
 
-# Security Group
+# Module Webserver
 
-resource "aws_security_group" "myapp-sg" {
-  name   = "myapp-sg"
-  vpc_id = aws_vpc.myapp-vpc.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
-  }
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
-    prefix_list_ids = []
-  }
-  tags = {
-    Name : "${var.env_prefix}-sg"
-  }
-}
-
-# EC2
-
-data "aws_ami" "latest-amazon-linux-image" {
-  most_recent = true
-  owners      = ["amazon"]
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-}
-
-/* resource "aws_key_pair" "ssh-key" {
-  key_name   = "fedora.pem"
-  public_key = file(var.public_key_location)
-}
- */
-
-resource "aws_instance" "myapp-server" {
-  ami           = data.aws_ami.latest-amazon-linux-image.id
+module "myapp-server" {
+  source        = "./modules/webserver"
+  vpc_id        = aws_vpc.myapp-vpc.id
+  my_ip         = var.my_ip
+  env_prefix    = var.env_prefix
+  image_name    = var.image_name
   instance_type = var.instance_type
-
-  subnet_id              = module.myapp-subnet.subnet.id
-  vpc_security_group_ids = [aws_security_group.myapp-sg.id]
-  availability_zone      = var.avail_zone
-
-  associate_public_ip_address = true
-  key_name                    = "fedora"
-
-  user_data = file("user-data.sh")
-  tags = {
-    Name : "${var.env_prefix}-server"
-  }
+  subnet_id     = module.myapp-subnet.subnet.id
+  avail_zone    = var.avail_zone
 }

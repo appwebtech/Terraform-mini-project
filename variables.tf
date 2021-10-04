@@ -5,4 +5,6 @@ variable "env_prefix" {}
 variable "my_ip" {}
 variable "instance_type" {}
 variable "private-key-location" {}
+variable "image_name" {}
+variable "subnet_id" {}
 /* variable "public_key_location" {} */
